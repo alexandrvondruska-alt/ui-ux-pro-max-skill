@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nimbus AI — Automate your workflow with AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#6366F1',
+          secondary: '#818CF8',
+          accent: '#059669',
+          background: '#F5F3FF',
+          foreground: '#1E1B4B',
+          card: '#FFFFFF',
+          muted: '#EBEFF9',
+          'muted-foreground': '#475569',
+          border: '#E0E7FF',
+        },
+        fontFamily: {
+          heading: ['Space Grotesk', 'sans-serif'],
+          body: ['DM Sans', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { -webkit-font-smoothing: antialiased; }
+
+  /* Respect reduced motion at the CSS layer too, independent of JS */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid #6366F1;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Preloader */
+  #preloader {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    background: #F5F3FF;
+  }
+  .loader-dot {
+    width: 10px; height: 10px; border-radius: 9999px; background: #6366F1;
+    display: inline-block; margin: 0 5px;
+  }
+  .no-js #preloader { display: none; }
+
+  /* Hero word-reveal: hide overflow so each word slides up cleanly */
+  .word-mask { overflow: hidden; display: inline-block; vertical-align: top; }
+  .word { display: inline-block; will-change: transform; }
+
+  /* Ambient blobs used for the parallax background */
+  .blob {
+    position: absolute; border-radius: 9999px; filter: blur(60px);
+    opacity: 0.35; pointer-events: none;
+  }
+
+  #navbar { transition: box-shadow 250ms ease, background-color 250ms ease, padding 250ms ease; }
+  #navbar.nav-scrolled {
+    box-shadow: 0 8px 30px -12px rgba(30, 27, 75, 0.18);
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  .magnetic-btn { will-change: transform; }
+
+  .gradient-text {
+    background: linear-gradient(90deg, #6366F1, #059669);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .counter-suffix::after { content: attr(data-suffix); }
+</style>
+</head>
+<body class="bg-background font-body text-foreground antialiased overflow-x-hidden">
+
+  <!-- Preloader: brief GSAP dot-bounce loop, killed once the page is ready -->
+  <div id="preloader" aria-hidden="true">
+    <span class="loader-dot"></span>
+    <span class="loader-dot"></span>
+    <span class="loader-dot"></span>
+  </div>
+
+  <!-- Skip link for keyboard users -->
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:bg-white focus:text-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg">
+    Skip to content
+  </a>
+
+  <!-- Nav -->
+  <header id="navbar" class="fixed top-0 inset-x-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2 font-heading font-bold text-xl text-foreground cursor-pointer">
+        <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-white">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M215.4 96.9l-88-56a8 8 0 00-8.6 0l-88 56A8 8 0 0026 104v96a8 8 0 004.2 7.1l88 48a8 8 0 007.6 0l88-48A8 8 0 00218 200v-96a8 8 0 00-2.6-7.1zM128 56.9l73.5 46.8L128 150.5 54.5 103.7zM42 117.4l78 49.6v78.4l-78-42.5zm94 128v-78.4l78-49.6v85.5z"/></svg>
+        </span>
+        Nimbus AI
+      </a>
+
+      <div class="hidden md:flex items-center gap-8 font-medium text-sm">
+        <a href="#features" class="text-foreground/70 hover:text-primary transition-colors duration-200 cursor-pointer">Features</a>
+        <a href="#how-it-works" class="text-foreground/70 hover:text-primary transition-colors duration-200 cursor-pointer">How it works</a>
+        <a href="#testimonial" class="text-foreground/70 hover:text-primary transition-colors duration-200 cursor-pointer">Customers</a>
+      </div>
+
+      <a href="#cta" class="magnetic-btn inline-flex items-center gap-1.5 bg-accent hover:brightness-95 text-black font-semibold text-sm px-5 py-2.5 rounded-lg transition-[filter] duration-200 cursor-pointer">
+        Start free
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.7 128a8 8 0 01-2.3 5.7l-56 56a8 8 0 01-11.4-11.4L196.7 136H40a8 8 0 010-16h156.7l-44.7-44.3a8 8 0 0111.4-11.4l56 56a8 8 0 012.3 5.7z"/></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section id="top" class="relative pt-40 pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <!-- Parallax ambient blobs -->
+      <div class="absolute inset-0 -z-10" aria-hidden="true">
+        <div class="parallax-layer blob w-72 h-72 bg-primary top-10 left-[8%]"></div>
+        <div class="parallax-layer blob w-96 h-96 bg-accent top-32 right-[5%]"></div>
+        <div class="parallax-layer blob w-64 h-64 bg-secondary bottom-0 left-[35%]"></div>
+      </div>
+
+      <div class="max-w-5xl mx-auto text-center">
+        <span class="reveal-fade inline-flex items-center gap-2 bg-white border border-border text-primary text-xs font-semibold tracking-wide uppercase px-4 py-2 rounded-full shadow-sm">
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208 144a15.78 15.78 0 01-10.42 14.94l-51.65 19.36-19.36 51.65a15.94 15.94 0 01-29.94 0L77.27 178.3l-51.65-19.36a15.94 15.94 0 010-29.94l51.65-19.36 19.36-51.65a15.94 15.94 0 0129.94 0l19.36 51.65 51.65 19.36A15.78 15.78 0 01208 144zM152 48h16v16a8 8 0 0016 0V48h16a8 8 0 000-16h-16V16a8 8 0 00-16 0v16h-16a8 8 0 000 16zm88 32h-8v-8a8 8 0 00-16 0v8h-8a8 8 0 000 16h8v8a8 8 0 0016 0v-8h8a8 8 0 000-16z"/></svg>
+          AI-powered automation
+        </span>
+
+        <h1 class="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
+          <span class="word-mask"><span class="word">Ship</span></span> <span class="word-mask"><span class="word">workflows</span></span> <span class="word-mask"><span class="word">that</span></span>
+          <br class="hidden sm:block">
+          <span class="word-mask"><span class="word gradient-text">think</span></span> <span class="word-mask"><span class="word gradient-text">for</span></span> <span class="word-mask"><span class="word gradient-text">themselves.</span></span>
+        </h1>
+
+        <p class="hero-fade text-lg text-muted-foreground max-w-2xl mx-auto mt-6">
+          Nimbus AI watches your team's busywork, learns the pattern, and automates it —
+          from triage to hand-off — so your best people spend their time on the parts only humans can do.
+        </p>
+
+        <div class="hero-fade flex flex-col sm:flex-row items-center justify-center gap-4 mt-9">
+          <a href="#cta" class="magnetic-btn inline-flex items-center gap-2 bg-accent hover:brightness-95 text-black font-semibold px-7 py-3.5 rounded-xl shadow-lg shadow-accent/20 transition-[filter] duration-200 cursor-pointer">
+            Start free trial
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.7 128a8 8 0 01-2.3 5.7l-56 56a8 8 0 01-11.4-11.4L196.7 136H40a8 8 0 010-16h156.7l-44.7-44.3a8 8 0 0111.4-11.4l56 56a8 8 0 012.3 5.7z"/></svg>
+          </a>
+          <a href="#how-it-works" class="inline-flex items-center gap-2 bg-white border border-border hover:border-primary text-foreground font-semibold px-7 py-3.5 rounded-xl transition-colors duration-200 cursor-pointer">
+            See how it works
+          </a>
+        </div>
+
+        <!-- Floating product mockup with an idle levitation animation -->
+        <div class="hero-fade mt-16 relative max-w-3xl mx-auto">
+          <div id="hero-card" class="bg-white border border-border rounded-2xl shadow-2xl shadow-primary/10 p-6 sm:p-8 text-left">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                <span class="w-3 h-3 rounded-full bg-green-400"></span>
+              </div>
+              <span class="text-xs font-medium text-muted-foreground">workflow / auto-triage.ai</span>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3 bg-muted rounded-lg px-4 py-3">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+                <span class="text-sm font-medium">New ticket classified as <b>Billing</b> · routed to Priya</span>
+              </div>
+              <div class="flex items-center gap-3 bg-muted rounded-lg px-4 py-3">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                <span class="text-sm font-medium">Draft reply generated in 1.2s · awaiting approval</span>
+              </div>
+              <div class="flex items-center gap-3 bg-muted rounded-lg px-4 py-3">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+                <span class="text-sm font-medium">Follow-up scheduled · no human action needed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proof strip -->
+    <section class="px-4 sm:px-6 lg:px-8 pb-20">
+      <div class="max-w-6xl mx-auto text-center">
+        <p class="reveal-fade text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-8">
+          Trusted by product &amp; ops teams at
+        </p>
+        <div class="logo-row flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-70">
+          <span class="font-heading font-bold text-xl">ACME</span>
+          <span class="font-heading font-bold text-xl">VERTEX</span>
+          <span class="font-heading font-bold text-xl">ORBITAL</span>
+          <span class="font-heading font-bold text-xl">HALO&nbsp;Labs</span>
+          <span class="font-heading font-bold text-xl">ZENITH</span>
+          <span class="font-heading font-bold text-xl">ATLAS&nbsp;Co.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="px-4 sm:px-6 lg:px-8 pb-24">
+      <div class="stats-grid max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="stat-card bg-white border border-border rounded-2xl p-6 text-center">
+          <div class="font-heading font-bold text-3xl sm:text-4xl text-primary">
+            <span data-counter="12" data-suffix="k+" class="counter-suffix">0</span>
+          </div>
+          <p class="text-sm text-muted-foreground mt-2">Teams automating today</p>
+        </div>
+        <div class="stat-card bg-white border border-border rounded-2xl p-6 text-center">
+          <div class="font-heading font-bold text-3xl sm:text-4xl text-primary">
+            <span data-counter="42" data-suffix="%" class="counter-suffix">0</span>
+          </div>
+          <p class="text-sm text-muted-foreground mt-2">Faster ticket resolution</p>
+        </div>
+        <div class="stat-card bg-white border border-border rounded-2xl p-6 text-center">
+          <div class="font-heading font-bold text-3xl sm:text-4xl text-primary">
+            <span data-counter="99.9" data-suffix="%" class="counter-suffix">0</span>
+          </div>
+          <p class="text-sm text-muted-foreground mt-2">Platform uptime</p>
+        </div>
+        <div class="stat-card bg-white border border-border rounded-2xl p-6 text-center">
+          <div class="font-heading font-bold text-3xl sm:text-4xl text-primary">
+            <span data-counter="3.4" data-suffix="M" class="counter-suffix">0</span>
+          </div>
+          <p class="text-sm text-muted-foreground mt-2">Tasks automated monthly</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="px-4 sm:px-6 lg:px-8 pb-28">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center max-w-2xl mx-auto mb-14">
+          <h2 class="reveal-fade font-heading font-bold text-3xl sm:text-4xl">
+            Built for how modern teams actually work
+          </h2>
+          <p class="reveal-fade text-muted-foreground mt-4">
+            Every feature is designed to remove a step, not add a dashboard.
+          </p>
+        </div>
+
+        <div class="features-grid grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="feature-card bg-white border border-border rounded-2xl p-7 transition-shadow duration-200">
+            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232 128a104 104 0 11-104-104 104.11 104.11 0 01104 104zm-56.2-19.1L134.4 152.7a8 8 0 01-11.3 0l-19.9-19.9a8 8 0 1111.3-11.3l14.2 14.2 36-36a8 8 0 0111.3 11.3z" fill-rule="evenodd"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg">Smart triage</h3>
+            <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+              Every incoming item is classified, prioritized, and routed the moment it arrives.
+            </p>
+          </div>
+
+          <div class="feature-card bg-white border border-border rounded-2xl p-7 transition-shadow duration-200">
+            <div class="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-5">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M215.4 96.9l-88-56a8 8 0 00-8.6 0l-88 56A8 8 0 0026 104v96a8 8 0 004.2 7.1l88 48a8 8 0 007.6 0l88-48A8 8 0 00218 200v-96a8 8 0 00-2.6-7.1zM128 56.9l73.5 46.8L128 150.5 54.5 103.7z"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg">Reasoning workflows</h3>
+            <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+              Chain multi-step logic — lookups, drafts, approvals — without writing a single script.
+            </p>
+          </div>
+
+          <div class="feature-card bg-white border border-border rounded-2xl p-7 transition-shadow duration-200">
+            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208 40H48a16 16 0 00-16 16v144a16 16 0 0016 16h160a16 16 0 0016-16V56a16 16 0 00-16-16zm0 16v16H48V56zM48 200V88h160v112z"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg">Live audit trail</h3>
+            <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+              Every automated decision is logged, explainable, and reversible in one click.
+            </p>
+          </div>
+
+          <div class="feature-card bg-white border border-border rounded-2xl p-7 transition-shadow duration-200">
+            <div class="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-5">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128 24a104 104 0 00-33.2 202.7c5.2.9 7.1-2.2 7.1-5v-17.6c-29 6.3-35.1-14-35.1-14-4.7-12-11.6-15.2-11.6-15.2-9.5-6.5.7-6.3.7-6.3 10.5.7 16 10.8 16 10.8 9.3 16 24.5 11.4 30.5 8.7.9-6.7 3.7-11.4 6.7-14-23.2-2.6-47.6-11.6-47.6-51.6 0-11.4 4.1-20.7 10.8-28-1.1-2.6-4.7-13.2 1-27.5 0 0 8.8-2.8 29 10.7a101 101 0 0152.8 0c20.1-13.5 29-10.7 29-10.7 5.7 14.3 2.1 24.9 1 27.5 6.7 7.3 10.8 16.6 10.8 28 0 40.1-24.5 49-47.8 51.5 3.8 3.3 7.2 9.7 7.2 19.6v29c0 2.8 1.9 6 7.2 5A104 104 0 00128 24z"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg">Open API</h3>
+            <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+              Plug Nimbus into your stack — Slack, Zendesk, Linear, or a webhook of your own.
+            </p>
+          </div>
+
+          <div class="feature-card bg-white border border-border rounded-2xl p-7 transition-shadow duration-200">
+            <div class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128 16a88.1 88.1 0 00-88 88c0 75.3 80 132.2 83.4 134.6a8 8 0 009.2 0C132 236.2 216 179.3 216 104a88.1 88.1 0 00-88-88zm0 120a32 32 0 1132-32 32 32 0 01-32 32z"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg">Human in the loop</h3>
+            <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+              Set confidence thresholds — Nimbus only acts alone when it's sure.
+            </p>
+          </div>
+
+          <div class="feature-card bg-white border border-border rounded-2xl p-7 transition-shadow duration-200">
+            <div class="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-5">
+              <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208 32h-24V16a8 8 0 00-16 0v16H88V16a8 8 0 00-16 0v16H48a16 16 0 00-16 16v144a16 16 0 0016 16h160a16 16 0 0016-16V48a16 16 0 00-16-16zm0 160H48V96h160z"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg">Weekly digest</h3>
+            <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+              A plain-language summary of what Nimbus handled, and what needs your attention.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how-it-works" class="px-4 sm:px-6 lg:px-8 pb-28">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <h2 class="reveal-fade font-heading font-bold text-3xl sm:text-4xl">Live in an afternoon, not a quarter</h2>
+          <p class="reveal-fade text-muted-foreground mt-4">Three steps, no engineering ticket required.</p>
+        </div>
+
+        <div class="steps-row grid sm:grid-cols-3 gap-10 relative">
+          <div class="step text-center">
+            <div class="w-14 h-14 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-heading font-bold text-lg">1</div>
+            <h3 class="font-heading font-semibold text-lg mt-5">Connect a source</h3>
+            <p class="text-sm text-muted-foreground mt-2">Point Nimbus at your inbox, helpdesk, or CRM in a few clicks.</p>
+          </div>
+          <div class="step text-center">
+            <div class="w-14 h-14 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-heading font-bold text-lg">2</div>
+            <h3 class="font-heading font-semibold text-lg mt-5">Show it 10 examples</h3>
+            <p class="text-sm text-muted-foreground mt-2">Nimbus learns your judgment calls, not just your keywords.</p>
+          </div>
+          <div class="step text-center">
+            <div class="w-14 h-14 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-heading font-bold text-lg">3</div>
+            <h3 class="font-heading font-semibold text-lg mt-5">Turn on automation</h3>
+            <p class="text-sm text-muted-foreground mt-2">Start in shadow mode, review its calls, then hand over the keys.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section id="testimonial" class="px-4 sm:px-6 lg:px-8 pb-28">
+      <div class="testimonial-card reveal-scale max-w-3xl mx-auto bg-white border border-border rounded-2xl p-10 sm:p-12 text-center shadow-xl shadow-primary/5">
+        <svg width="32" height="32" viewBox="0 0 256 256" fill="currentColor" class="text-primary/30 mx-auto mb-6" aria-hidden="true"><path d="M104 64a56 56 0 00-56 56v72a8 8 0 008 8h72a8 8 0 008-8v-64a8 8 0 00-8-8H72v-8a40 40 0 0140-40 8 8 0 000-16zm112 0a56 56 0 00-56 56v72a8 8 0 008 8h72a8 8 0 008-8v-64a8 8 0 00-8-8h-56v-8a40 40 0 0140-40 8 8 0 000-16z"/></svg>
+        <p class="font-heading text-xl sm:text-2xl leading-snug">
+          "We cut first-response time by 40% in the first month. It felt less like installing software
+          and more like hiring a very fast, very consistent teammate."
+        </p>
+        <div class="flex items-center justify-center gap-3 mt-8">
+          <div class="w-11 h-11 rounded-full bg-primary text-white font-heading font-semibold flex items-center justify-center">JM</div>
+          <div class="text-left">
+            <p class="font-semibold text-sm">Jordan Mensah</p>
+            <p class="text-xs text-muted-foreground">Head of Support, Orbital</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA banner -->
+    <section id="cta" class="relative px-4 sm:px-6 lg:px-8 py-10">
+      <div class="relative overflow-hidden max-w-6xl mx-auto bg-foreground rounded-3xl px-8 sm:px-16 py-16 sm:py-20 text-center">
+        <div class="parallax-layer blob w-80 h-80 bg-primary top-[-4rem] left-[-4rem] opacity-40"></div>
+        <div class="parallax-layer blob w-80 h-80 bg-accent bottom-[-4rem] right-[-4rem] opacity-40"></div>
+        <div class="relative">
+          <h2 class="reveal-fade font-heading font-bold text-3xl sm:text-4xl text-white">
+            Give your team its afternoons back
+          </h2>
+          <p class="reveal-fade text-white/70 max-w-xl mx-auto mt-4">
+            Free for up to 100 automated tasks a month. No credit card, no sales call.
+          </p>
+          <div class="reveal-fade flex flex-col sm:flex-row items-center justify-center gap-4 mt-9">
+            <a href="#" class="magnetic-btn inline-flex items-center gap-2 bg-accent hover:brightness-95 text-black font-semibold px-7 py-3.5 rounded-xl transition-[filter] duration-200 cursor-pointer">
+              Start free trial
+            </a>
+            <a href="#" class="inline-flex items-center gap-2 text-white/80 hover:text-white font-semibold px-7 py-3.5 rounded-xl border border-white/20 hover:border-white/40 transition-colors duration-200 cursor-pointer">
+              Talk to sales
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="px-4 sm:px-6 lg:px-8 pt-16 pb-10 border-t border-border mt-10">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <a href="#top" class="flex items-center gap-2 font-heading font-bold text-lg cursor-pointer">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white">
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M215.4 96.9l-88-56a8 8 0 00-8.6 0l-88 56A8 8 0 0026 104v96a8 8 0 004.2 7.1l88 48a8 8 0 007.6 0l88-48A8 8 0 00218 200v-96a8 8 0 00-2.6-7.1z"/></svg>
+        </span>
+        Nimbus AI
+      </a>
+      <p class="text-sm text-muted-foreground">© 2026 Nimbus AI, Inc. All rights reserved.</p>
+      <div class="flex items-center gap-5 text-muted-foreground">
+        <a href="#" aria-label="Nimbus AI on X" class="hover:text-primary transition-colors duration-200 cursor-pointer">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M214 42h34l-74 84.6L256 214h-68l-53-69.3L69 214H35l79-90.2L0 42h70l48 63.4zm-11.9 153h18.8L69.4 61h-20z"/></svg>
+        </a>
+        <a href="#" aria-label="Nimbus AI on GitHub" class="hover:text-primary transition-colors duration-200 cursor-pointer">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128 24a104 104 0 00-33 202.7c5 .9 7-2.2 7-5v-17.6c-29 6.3-35-14-35-14-4.7-12-11.6-15.2-11.6-15.2-9.5-6.5.7-6.3.7-6.3 10.5.7 16 10.8 16 10.8 9.3 16 24.5 11.4 30.5 8.7.9-6.7 3.7-11.4 6.7-14-23.2-2.6-47.6-11.6-47.6-51.6 0-11.4 4-20.7 10.7-28-1-2.6-4.6-13.2 1-27.5 0 0 8.8-2.8 29 10.7a101 101 0 0153 0c20-13.5 29-10.7 29-10.7 5.7 14.3 2.1 24.9 1 27.5 6.7 7.3 10.8 16.6 10.8 28 0 40.1-24.5 49-47.8 51.5 3.8 3.3 7.2 9.7 7.2 19.6v29c0 2.8 1.9 6 7.2 5A104 104 0 00128 24z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ---------- Preloader ----------
+      var preloader = document.getElementById('preloader');
+      var loaderTl = null;
+      if (!prefersReduced && window.gsap) {
+        loaderTl = gsap.timeline({ repeat: -1 }).to('.loader-dot', {
+          y: -8, duration: 0.4, stagger: { each: 0.15, yoyo: true, repeat: 1 },
+        });
+      }
+
+      function hidePreloader() {
+        if (!preloader) return;
+        if (loaderTl) loaderTl.kill();
+        if (window.gsap && !prefersReduced) {
+          gsap.to(preloader, {
+            opacity: 0, duration: 0.4, ease: 'power1.out',
+            onComplete: function () { preloader.style.display = 'none'; },
+          });
+        } else {
+          preloader.style.display = 'none';
+        }
+        runAnimations();
+      }
+
+      // Fallback so a slow/blocked CDN never leaves the preloader stuck on screen.
+      var preloaderFallback = setTimeout(hidePreloader, 2500);
+      window.addEventListener('load', function () {
+        clearTimeout(preloaderFallback);
+        hidePreloader();
+      });
+
+      function runAnimations() {
+        if (!window.gsap) return; // graceful no-op if the CDN failed to load
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.matchMedia().add(
+          {
+            reduceMotion: '(prefers-reduced-motion: reduce)',
+            noPreference: '(prefers-reduced-motion: no-preference)',
+          },
+          function (context) {
+            var reduceMotion = context.conditions.reduceMotion;
+
+            // ---------- Reveal helpers ----------
+            function revealFade(selector) {
+              document.querySelectorAll(selector).forEach(function (el) {
+                if (reduceMotion) { gsap.set(el, { opacity: 1, y: 0 }); return; }
+                gsap.from(el, {
+                  opacity: 0, y: 16, duration: 0.4, ease: 'power1.out',
+                  scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' },
+                });
+              });
+            }
+
+            function revealScale(selector) {
+              document.querySelectorAll(selector).forEach(function (el) {
+                if (reduceMotion) { gsap.set(el, { opacity: 1, scale: 1 }); return; }
+                gsap.from(el, {
+                  opacity: 0, scale: 0.94, duration: 0.5, ease: 'power2.out',
+                  scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' },
+                });
+              });
+            }
+
+            function revealGridStagger(containerSelector, itemSelector) {
+              document.querySelectorAll(containerSelector).forEach(function (container) {
+                var items = container.querySelectorAll(itemSelector);
+                if (reduceMotion) { gsap.set(items, { opacity: 1, y: 0, scale: 1 }); return; }
+                gsap.from(items, {
+                  opacity: 0, y: 20, scale: 0.94, duration: 0.45,
+                  stagger: { each: 0.07, from: 'start', grid: 'auto' },
+                  ease: 'back.out(1.4)',
+                  scrollTrigger: { trigger: container, start: 'top 85%', toggleActions: 'play none none reverse' },
+                });
+              });
+            }
+
+            function revealChildrenStagger(containerSelector, childSelector) {
+              document.querySelectorAll(containerSelector).forEach(function (container) {
+                var children = container.querySelectorAll(childSelector);
+                if (reduceMotion) { gsap.set(children, { opacity: 1, y: 0 }); return; }
+                gsap.from(children, {
+                  opacity: 0, y: 24, duration: 0.5, stagger: 0.08, ease: 'power2.out',
+                  scrollTrigger: { trigger: container, start: 'top 85%', toggleActions: 'play none none reverse' },
+                });
+              });
+            }
+
+            revealFade('.reveal-fade');
+            revealScale('.reveal-scale');
+            revealChildrenStagger('.logo-row', 'span');
+            revealGridStagger('.stats-grid', '.stat-card');
+            revealGridStagger('.features-grid', '.feature-card');
+            revealChildrenStagger('.steps-row', '.step');
+
+            // ---------- Hero entrance (word stagger + fades) ----------
+            if (reduceMotion) {
+              gsap.set('.word', { yPercent: 0, opacity: 1 });
+              gsap.set('.hero-fade', { opacity: 1, y: 0 });
+            } else {
+              var heroTl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+              heroTl
+                .from('.word', { yPercent: 120, opacity: 0, duration: 0.8, stagger: 0.04 })
+                .from('.hero-fade', { opacity: 0, y: 18, duration: 0.6, stagger: 0.12 }, '-=0.4');
+            }
+
+            // ---------- Idle float on the hero product card ----------
+            var heroCard = document.getElementById('hero-card');
+            if (heroCard && !reduceMotion) {
+              gsap.to(heroCard, {
+                y: -10, duration: 2.6, ease: 'sine.inOut', repeat: -1, yoyo: true,
+              });
+            }
+
+            // ---------- Parallax background blobs ----------
+            if (!reduceMotion) {
+              gsap.utils.toArray('.parallax-layer').forEach(function (layer, i) {
+                var wrapper = layer.closest('section');
+                if (!wrapper) return;
+                gsap.to(layer, {
+                  yPercent: (i + 1) * -12,
+                  ease: 'none',
+                  scrollTrigger: { trigger: wrapper, scrub: 0.6 },
+                });
+              });
+            }
+
+            // ---------- Magnetic buttons ----------
+            if (!reduceMotion) {
+              document.querySelectorAll('.magnetic-btn').forEach(function (btn) {
+                var xTo = gsap.quickTo(btn, 'x', { duration: 0.4, ease: 'power3' });
+                var yTo = gsap.quickTo(btn, 'y', { duration: 0.4, ease: 'power3' });
+                function onMove(e) {
+                  var r = btn.getBoundingClientRect();
+                  xTo((e.clientX - r.left - r.width / 2) * 0.3);
+                  yTo((e.clientY - r.top - r.height / 2) * 0.3);
+                }
+                function onLeave() {
+                  gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)' });
+                }
+                btn.addEventListener('pointermove', onMove);
+                btn.addEventListener('pointerleave', onLeave);
+              });
+            }
+
+            // ---------- Count-up stats ----------
+            document.querySelectorAll('[data-counter]').forEach(function (el) {
+              var target = parseFloat(el.getAttribute('data-counter'));
+              var decimals = (el.getAttribute('data-counter').split('.')[1] || '').length;
+              if (reduceMotion) {
+                el.textContent = target.toFixed(decimals);
+                return;
+              }
+              var obj = { val: 0 };
+              ScrollTrigger.create({
+                trigger: el,
+                start: 'top 90%',
+                once: true,
+                onEnter: function () {
+                  gsap.to(obj, {
+                    val: target, duration: 1.4, ease: 'power2.out',
+                    onUpdate: function () { el.textContent = obj.val.toFixed(decimals); },
+                  });
+                },
+              });
+            });
+
+            // ---------- Navbar shrink on scroll ----------
+            ScrollTrigger.create({
+              start: 'top -80',
+              end: 99999,
+              toggleClass: { targets: '#navbar', className: 'nav-scrolled' },
+            });
+          }
+        );
+      }
+    })();
+  </script>
+</body>
+</html>
