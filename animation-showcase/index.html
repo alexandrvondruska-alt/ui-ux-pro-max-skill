@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motion Showcase</title>
+<meta name="description" content="Four common website animation styles, side by side, to pick a motion language from.">
+<link rel="icon" href="data:,">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root{
+    --bg:#0A0A0F;
+    --fg:#F4F4F8;
+    --muted:#9A9AB0;
+    --card:#131320;
+    --border:#232336;
+    --accent:#7C6FFF;
+    --accent2:#22D3EE;
+    --accent3:#FB7185;
+    --radius:16px;
+    --radius-lg:26px;
+    color-scheme: dark;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .container{max-width:1080px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{margin:0;letter-spacing:-.02em;}
+  p{margin:0;}
+  a{color:inherit;}
+  section{padding:110px 0;position:relative;}
+  .label{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--card);border:1px solid var(--border);font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+  .section-title{font-size:clamp(24px,3.4vw,38px);font-weight:700;max-width:640px;}
+  .section-sub{margin-top:12px;color:var(--muted);max-width:520px;font-size:15px;}
+
+  /* ---------- Top intro ---------- */
+  .intro{padding:80px 0 40px;text-align:center;}
+  .intro h1{font-size:clamp(28px,4.4vw,44px);}
+  .intro p{margin-top:16px;color:var(--muted);max-width:560px;margin-left:auto;margin-right:auto;font-size:15.5px;}
+
+  /* ---------- Sticky pill nav ---------- */
+  .style-nav{position:sticky;top:0;z-index:60;background:rgba(10,10,15,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:14px 0;}
+  .style-nav-row{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;}
+  .style-nav-row::-webkit-scrollbar{display:none;}
+  .style-nav a{flex:none;padding:9px 16px;border-radius:999px;border:1px solid var(--border);font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;transition:.15s;}
+  .style-nav a:hover{color:var(--fg);border-color:var(--accent);}
+
+  /* =========================================================
+     A — Scroll reveal + parallax
+     ========================================================= */
+  #style-a{background:linear-gradient(180deg,#0A0A0F,#0D0D18);}
+  .parallax-hero{height:56vh;min-height:380px;border-radius:var(--radius-lg);overflow:hidden;position:relative;margin-top:32px;border:1px solid var(--border);}
+  .parallax-layer{position:absolute;inset:-10% -10%;border-radius:50%;filter:blur(60px);opacity:.55;will-change:transform;}
+  .pl-1{background:radial-gradient(closest-side, var(--accent), transparent);top:-20%;left:-10%;width:60%;height:80%;}
+  .pl-2{background:radial-gradient(closest-side, var(--accent2), transparent);bottom:-30%;right:-10%;width:55%;height:75%;}
+  .pl-3{background:radial-gradient(closest-side, var(--accent3), transparent);top:20%;right:20%;width:35%;height:50%;opacity:.35;}
+  .parallax-hero-copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+  .parallax-hero-copy h3{font-size:clamp(22px,3vw,32px);}
+  .parallax-hero-copy p{margin-top:10px;color:var(--muted);max-width:380px;}
+
+  .reveal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;}
+  @media (max-width:800px){ .reveal-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .reveal-grid{grid-template-columns:1fr;} }
+  .reveal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);}
+  .reveal-card.in{opacity:1;transform:translateY(0);}
+  .reveal-card .dot{width:10px;height:10px;border-radius:3px;background:var(--accent);margin-bottom:14px;}
+  .reveal-card h4{font-size:15px;margin-bottom:6px;}
+  .reveal-card p{font-size:13px;color:var(--muted);}
+
+  /* =========================================================
+     B — Magnetic + tilt
+     ========================================================= */
+  #style-b{background:linear-gradient(180deg,#0D0D18,#0A0A0F);}
+  .magnet-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:32px;align-items:center;}
+  .magnetic-btn{
+    position:relative;padding:18px 36px;border-radius:999px;border:1px solid var(--accent);background:transparent;color:var(--fg);
+    font-weight:700;font-size:15px;cursor:pointer;transition:background .2s, color .2s;
+  }
+  .magnetic-btn:hover{background:var(--accent);color:#0A0A0F;}
+
+  .tilt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;}
+  @media (max-width:800px){ .tilt-grid{grid-template-columns:1fr;} }
+  .tilt-card{
+    background:linear-gradient(155deg, var(--card), #1A1A2C);
+    border:1px solid var(--border);border-radius:var(--radius);padding:26px;
+    transform-style:preserve-3d;transition:transform .15s ease-out, box-shadow .15s ease-out;
+    will-change:transform;
+  }
+  .tilt-card h4{font-size:15px;margin-bottom:8px;}
+  .tilt-card p{font-size:13px;color:var(--muted);}
+  .tilt-card .glow{position:absolute;}
+
+  .cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:200;border-radius:50%;transform:translate(-50%,-50%);}
+  .cursor-dot{width:6px;height:6px;background:var(--accent);}
+  .cursor-ring{width:34px;height:34px;border:1px solid var(--accent);transition:width .2s,height .2s,border-color .2s,opacity .2s;opacity:.7;}
+  .cursor-ring.hovering{width:52px;height:52px;border-color:var(--accent2);}
+
+  /* =========================================================
+     C — Aurora gradient
+     ========================================================= */
+  #style-c{background:#08080D;}
+  .aurora-panel{position:relative;height:60vh;min-height:420px;border-radius:var(--radius-lg);overflow:hidden;margin-top:32px;border:1px solid var(--border);background:#0A0A12;}
+  .aurora-blob{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:screen;opacity:.75;}
+  .ab-1{width:55%;height:70%;background:radial-gradient(circle, #7C6FFF, transparent 70%);top:-15%;left:-10%;animation:auroraMove1 11s ease-in-out infinite;}
+  .ab-2{width:50%;height:65%;background:radial-gradient(circle, #22D3EE, transparent 70%);bottom:-20%;right:-10%;animation:auroraMove2 13s ease-in-out infinite;}
+  .ab-3{width:40%;height:55%;background:radial-gradient(circle, #FB7185, transparent 70%);top:20%;right:10%;animation:auroraMove3 9s ease-in-out infinite;}
+  @keyframes auroraMove1{ 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(6%,8%) scale(1.15);} }
+  @keyframes auroraMove2{ 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-8%,-6%) scale(1.1);} }
+  @keyframes auroraMove3{ 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-5%,10%) scale(.9);} }
+  .aurora-copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+  .aurora-copy .glass{padding:22px 30px;border-radius:20px;background:rgba(255,255,255,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.14);}
+  .aurora-copy h3{font-size:clamp(22px,3vw,32px);}
+  .aurora-copy p{margin-top:10px;color:var(--muted);max-width:380px;}
+
+  /* =========================================================
+     D — Staggered reveal + marquee
+     ========================================================= */
+  #style-d{background:linear-gradient(180deg,#0A0A0F,#0D0D18);}
+  .stagger-headline{margin-top:32px;font-size:clamp(30px,5.4vw,60px);font-weight:800;line-height:1.05;}
+  .stagger-headline .word{display:inline-block;opacity:0;transform:translateY(30px) rotateX(-40deg);transform-origin:bottom;animation:wordIn .7s cubic-bezier(.16,1,.3,1) forwards;}
+  @keyframes wordIn{ to{ opacity:1; transform:translateY(0) rotateX(0); } }
+
+  .marquee-wrap{margin-top:48px;overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0;}
+  .marquee-track{display:flex;gap:14px;width:max-content;animation:marquee 22s linear infinite;}
+  .marquee-wrap:hover .marquee-track{animation-play-state:paused;}
+  .marquee-pill{flex:none;padding:10px 20px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:13.5px;font-weight:600;color:var(--muted);}
+  @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .reveal-card{opacity:1;transform:none;transition:none;}
+    .stagger-headline .word{opacity:1;transform:none;animation:none;}
+    .marquee-track{animation:none;}
+    .aurora-blob{animation:none;}
+    .tilt-card{transition:none;}
+  }
+
+  footer{padding:60px 0 90px;text-align:center;border-top:1px solid var(--border);margin-top:20px;}
+  footer p{color:var(--muted);font-size:14px;max-width:480px;margin:0 auto;}
+  footer .pick-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+  footer .pick-row span{padding:8px 16px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--fg);}
+</style>
+</head>
+<body>
+
+<div class="intro container">
+  <h1>Four ways a site can move</h1>
+  <p>I couldn't open the TikTok clip you linked — that domain is blocked from this environment — so here are four common motion styles used on modern product/AI sites instead. Scroll through each, then tell me which one (or which mix) to carry over to your two apartment sites.</p>
+</div>
+
+<nav class="style-nav">
+  <div class="container style-nav-row">
+    <a href="#style-a">A · Scroll reveal &amp; parallax</a>
+    <a href="#style-b">B · Magnetic &amp; tilt</a>
+    <a href="#style-c">C · Aurora gradient</a>
+    <a href="#style-d">D · Staggered text &amp; marquee</a>
+  </div>
+</nav>
+
+<!-- A -->
+<section id="style-a">
+  <div class="container">
+    <span class="label">Style A</span>
+    <h2 class="section-title">Scroll reveal + parallax</h2>
+    <p class="section-sub">Background layers drift at different speeds as you scroll; content fades and slides up into place, staggered card by card. Calm, cinematic, works well on long pages.</p>
+
+    <div class="parallax-hero">
+      <div class="parallax-layer pl-1" data-speed="0.15"></div>
+      <div class="parallax-layer pl-2" data-speed="0.25"></div>
+      <div class="parallax-layer pl-3" data-speed="0.1"></div>
+      <div class="parallax-hero-copy">
+        <h3>Scroll this section</h3>
+        <p>Watch the glow layers move at different rates behind the text.</p>
+      </div>
+    </div>
+
+    <div class="reveal-grid">
+      <div class="reveal-card"><div class="dot"></div><h4>Verified listing</h4><p>Every card enters on its own delay as it crosses into view.</p></div>
+      <div class="reveal-card"><div class="dot"></div><h4>Live pricing</h4><p>Motion settles quickly — under 700ms — so it never feels sluggish.</p></div>
+      <div class="reveal-card"><div class="dot"></div><h4>Zero fees</h4><p>Respects reduced-motion: everything just appears, instantly.</p></div>
+      <div class="reveal-card"><div class="dot"></div><h4>Fast replies</h4><p>Good for feature grids, testimonials, amenity lists.</p></div>
+      <div class="reveal-card"><div class="dot"></div><h4>Flexible dates</h4><p>Works with any number of cards without extra setup.</p></div>
+      <div class="reveal-card"><div class="dot"></div><h4>Self check-in</h4><p>Subtle enough to use on every section of a page.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- B -->
+<section id="style-b">
+  <div class="container">
+    <span class="label">Style B</span>
+    <h2 class="section-title">Magnetic buttons &amp; tilt cards</h2>
+    <p class="section-sub">Interactive elements react to the cursor before you even click — buttons pull slightly toward it, cards tilt in 3D based on pointer position. Playful, tactile, best used sparingly on primary CTAs.</p>
+
+    <div class="magnet-row">
+      <button class="magnetic-btn" id="magnetBtn">Hover me</button>
+      <span style="color:var(--muted);font-size:13.5px;">↑ move your cursor near this button</span>
+    </div>
+
+    <div class="tilt-grid">
+      <div class="tilt-card" data-tilt><h4>Tilt card one</h4><p>Move your cursor across this card — it tilts toward you in 3D.</p></div>
+      <div class="tilt-card" data-tilt><h4>Tilt card two</h4><p>Snaps back smoothly when the cursor leaves.</p></div>
+      <div class="tilt-card" data-tilt><h4>Tilt card three</h4><p>Disabled automatically on touch devices and reduced motion.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- C -->
+<section id="style-c">
+  <div class="container">
+    <span class="label">Style C</span>
+    <h2 class="section-title">Aurora / mesh gradient background</h2>
+    <p class="section-sub">Soft blurred color blobs drift slowly behind the content — a living background rather than a static one. Great for a hero section; expensive if overused elsewhere.</p>
+
+    <div class="aurora-panel">
+      <div class="aurora-blob ab-1"></div>
+      <div class="aurora-blob ab-2"></div>
+      <div class="aurora-blob ab-3"></div>
+      <div class="aurora-copy">
+        <div class="glass">
+          <h3>Always in motion</h3>
+          <p>Three blobs looping on 9–13s cycles, never quite repeating the same shape.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- D -->
+<section id="style-d">
+  <div class="container">
+    <span class="label">Style D</span>
+    <h2 class="section-title">Staggered text reveal + marquee</h2>
+    <p class="section-sub">Headlines animate in word by word on load; a strip of tags scrolls infinitely underneath. Confident, editorial — good for a bold hero statement.</p>
+
+    <h3 class="stagger-headline" id="staggerHeadline">Book it before the season sells out.</h3>
+
+    <div class="marquee-wrap">
+      <div class="marquee-track" id="marqueeTrack">
+        <span class="marquee-pill">Free WiFi</span>
+        <span class="marquee-pill">Self check-in</span>
+        <span class="marquee-pill">Wood stove</span>
+        <span class="marquee-pill">Pet friendly</span>
+        <span class="marquee-pill">Free parking</span>
+        <span class="marquee-pill">Old town, 5 min walk</span>
+        <span class="marquee-pill">No broker fees</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Reply with a letter — A, B, C, D, or any combination — and I'll carry that motion language over to the apartment rental and holiday booking sites.</p>
+    <div class="pick-row">
+      <span>A</span><span>B</span><span>C</span><span>D</span>
+    </div>
+  </div>
+</footer>
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = window.matchMedia("(pointer: fine)").matches;
+
+  /* ---------- A: parallax ---------- */
+  if (!reduceMotion){
+    var layers = document.querySelectorAll(".parallax-layer");
+    var hero = document.querySelector(".parallax-hero");
+    window.addEventListener("scroll", function(){
+      if (!hero) return;
+      var rect = hero.getBoundingClientRect();
+      var progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      layers.forEach(function(layer){
+        var speed = parseFloat(layer.dataset.speed) || 0.15;
+        var offset = (progress - 0.5) * 120 * speed;
+        layer.style.transform = "translateY(" + offset + "px)";
+      });
+    }, { passive:true });
+  }
+
+  /* ---------- A: reveal cards ---------- */
+  var revealCards = document.querySelectorAll(".reveal-card");
+  if ("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry, i){
+        if (entry.isIntersecting){
+          var idx = Array.prototype.indexOf.call(revealCards, entry.target);
+          entry.target.style.transitionDelay = reduceMotion ? "0ms" : (Math.min(idx % 6, 5) * 70) + "ms";
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.2 });
+    revealCards.forEach(function(el){ io.observe(el); });
+  } else {
+    revealCards.forEach(function(el){ el.classList.add("in"); });
+  }
+
+  /* ---------- B: magnetic button ---------- */
+  var magnetBtn = document.getElementById("magnetBtn");
+  if (magnetBtn && fine && !reduceMotion){
+    var radius = 90, strength = 0.35;
+    document.addEventListener("mousemove", function(e){
+      var rect = magnetBtn.getBoundingClientRect();
+      var cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+      var dx = e.clientX - cx, dy = e.clientY - cy;
+      var dist = Math.hypot(dx, dy);
+      if (dist < radius){
+        magnetBtn.style.transform = "translate(" + (dx*strength) + "px," + (dy*strength) + "px)";
+      } else {
+        magnetBtn.style.transform = "translate(0,0)";
+      }
+    }, { passive:true });
+  }
+
+  /* ---------- B: tilt cards ---------- */
+  if (fine && !reduceMotion){
+    document.querySelectorAll("[data-tilt]").forEach(function(card){
+      card.addEventListener("mousemove", function(e){
+        var rect = card.getBoundingClientRect();
+        var px = (e.clientX - rect.left) / rect.width - 0.5;
+        var py = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = "perspective(600px) rotateX(" + (-py*10) + "deg) rotateY(" + (px*10) + "deg) translateZ(6px)";
+      });
+      card.addEventListener("mouseleave", function(){
+        card.style.transform = "perspective(600px) rotateX(0) rotateY(0)";
+      });
+    });
+  }
+
+  /* ---------- B: custom cursor ---------- */
+  var cursorDot = document.getElementById("cursorDot");
+  var cursorRing = document.getElementById("cursorRing");
+  if (fine && !reduceMotion){
+    var ringX = 0, ringY = 0, targetX = 0, targetY = 0;
+    document.addEventListener("mousemove", function(e){
+      targetX = e.clientX; targetY = e.clientY;
+      cursorDot.style.left = e.clientX + "px";
+      cursorDot.style.top = e.clientY + "px";
+    }, { passive:true });
+    (function loop(){
+      ringX += (targetX - ringX) * 0.18;
+      ringY += (targetY - ringY) * 0.18;
+      cursorRing.style.left = ringX + "px";
+      cursorRing.style.top = ringY + "px";
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll("a, button, [data-tilt]").forEach(function(el){
+      el.addEventListener("mouseenter", function(){ cursorRing.classList.add("hovering"); });
+      el.addEventListener("mouseleave", function(){ cursorRing.classList.remove("hovering"); });
+    });
+  } else {
+    cursorDot.style.display = "none";
+    cursorRing.style.display = "none";
+  }
+
+  /* ---------- D: staggered headline ---------- */
+  var headline = document.getElementById("staggerHeadline");
+  if (headline){
+    var text = headline.textContent;
+    var words = text.split(" ");
+    headline.innerHTML = words.map(function(w, i){
+      var delay = reduceMotion ? 0 : i * 60;
+      return '<span class="word" style="animation-delay:' + delay + 'ms;">' + w + '&nbsp;</span>';
+    }).join("");
+  }
+
+  /* ---------- D: marquee (duplicate for seamless loop) ---------- */
+  var track = document.getElementById("marqueeTrack");
+  if (track){
+    track.innerHTML += track.innerHTML;
+  }
+})();
+</script>
+</body>
+</html>
