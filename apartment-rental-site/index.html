@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harborline Rentals — Find Your Next Apartment</title>
+<meta name="description" content="Browse verified apartments for rent, filter by price, bedrooms and amenities, and schedule a tour in minutes.">
+<link rel="icon" href="data:,">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root{
+    --primary:#0F766E;
+    --primary-foreground:#FFFFFF;
+    --secondary:#14B8A6;
+    --secondary-foreground:#0F172A;
+    --accent:#0369A1;
+    --accent-foreground:#FFFFFF;
+    --gold:#C9A227;
+    --bg:#F0FDFA;
+    --fg:#134E4A;
+    --card:#FFFFFF;
+    --card-foreground:#134E4A;
+    --muted:#E8F0F3;
+    --muted-foreground:#475569;
+    --border:#99F6E4;
+    --destructive:#DC2626;
+    --ring:#0F766E;
+
+    --radius-sm:8px;
+    --radius:14px;
+    --radius-lg:22px;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+    --shadow:0 8px 24px -8px rgba(15,118,110,.25);
+    --shadow-lg:0 20px 50px -16px rgba(15,118,110,.35);
+    --container:1160px;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root{
+      --primary:#2DD4BF;
+      --primary-foreground:#062A27;
+      --secondary:#5EEAD4;
+      --secondary-foreground:#062A27;
+      --accent:#38BDF8;
+      --accent-foreground:#062A27;
+      --gold:#E8C766;
+      --bg:#0A1917;
+      --fg:#E6FFFA;
+      --card:#0F2624;
+      --card-foreground:#E6FFFA;
+      --muted:#123330;
+      --muted-foreground:#9FC9C3;
+      --border:#1E4B45;
+      --destructive:#F87171;
+      --ring:#2DD4BF;
+      color-scheme: dark;
+    }
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,sans-serif;
+    background:var(--bg);
+    color:var(--fg);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;margin:0;padding:0;}
+  h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.02em;}
+  p{margin:0;}
+  button,input,select{font-family:inherit;}
+  .container{max-width:var(--container);margin:0 auto;padding:0 24px;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
+    outline:2px solid var(--ring);
+    outline-offset:2px;
+    border-radius:6px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px 24px;border-radius:999px;border:1px solid transparent;
+    font-weight:600;font-size:14.5px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--primary);color:var(--primary-foreground);box-shadow:var(--shadow);}
+  .btn-primary:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+  .btn-outline{background:transparent;border-color:var(--border);color:var(--fg);}
+  .btn-outline:hover{background:var(--muted);}
+  .btn-ghost{background:transparent;color:var(--fg);}
+  .btn-ghost:hover{background:var(--muted);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:9px 16px;font-size:13.5px;}
+
+  /* ---------- Header ---------- */
+  .site-header{
+    position:sticky;top:0;z-index:50;
+    padding:16px 0;
+    transition:background .25s ease, box-shadow .25s ease, backdrop-filter .25s ease, padding .25s ease;
+  }
+  .site-header.scrolled{
+    background:rgba(255,255,255,.65);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(153,246,228,.6);
+    box-shadow:0 4px 24px -12px rgba(15,118,110,.25);
+    padding:10px 0;
+  }
+  @media (prefers-color-scheme: dark){
+    .site-header.scrolled{ background:rgba(10,25,23,.65); border-bottom-color:rgba(30,75,69,.6); }
+  }
+  .header-row{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;flex:none;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .main-nav{display:flex;align-items:center;gap:28px;}
+  .main-nav a{font-size:14.5px;font-weight:500;color:var(--muted-foreground);transition:color .15s ease;}
+  .main-nav a:hover{color:var(--fg);}
+  .header-actions{display:flex;align-items:center;gap:10px;}
+  .nav-toggle{
+    display:none;width:42px;height:42px;border-radius:10px;border:1px solid var(--border);
+    background:var(--card);align-items:center;justify-content:center;cursor:pointer;flex:none;
+  }
+  .nav-toggle span,.nav-toggle span::before,.nav-toggle span::after{
+    content:"";display:block;width:18px;height:2px;background:var(--fg);border-radius:2px;position:relative;transition:.2s;
+  }
+  .nav-toggle span::before{position:absolute;top:-6px;}
+  .nav-toggle span::after{position:absolute;top:6px;}
+  .mobile-nav{display:none;}
+
+  @media (max-width:860px){
+    .main-nav{display:none;}
+    .header-actions .btn-outline{display:none;}
+    .nav-toggle{display:flex;}
+    .mobile-nav.open{
+      display:block;margin-top:14px;padding:16px;border-radius:var(--radius);
+      background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);
+    }
+    .mobile-nav.open ul{display:flex;flex-direction:column;gap:4px;}
+    .mobile-nav.open a{display:block;padding:11px 10px;border-radius:8px;font-weight:600;}
+    .mobile-nav.open a:hover{background:var(--muted);}
+    .mobile-nav .btn{margin-top:10px;}
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;padding:64px 0 40px;overflow:hidden;}
+  .hero::before{
+    content:"";position:absolute;inset:-20% -10% auto -10%;height:520px;
+    background:radial-gradient(60% 60% at 30% 20%, rgba(20,184,166,.30), transparent 70%),
+               radial-gradient(50% 50% at 80% 10%, rgba(3,105,161,.22), transparent 70%);
+    z-index:-1;filter:blur(10px);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;
+    background:var(--muted);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--primary);
+    margin-bottom:20px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;}
+  .hero h1{font-size:clamp(32px,4.6vw,54px);line-height:1.06;max-width:600px;}
+  .hero h1 em{font-style:normal;color:var(--primary);}
+  .hero-sub{margin-top:18px;font-size:17px;color:var(--muted-foreground);max-width:480px;}
+  .hero-cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;}
+  .hero-stats{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap;}
+  .hero-stat b{display:block;font-size:24px;font-weight:800;}
+  .hero-stat span{font-size:13px;color:var(--muted-foreground);}
+
+  .hero-visual{position:relative;aspect-ratio:4/5;border-radius:var(--radius-lg);overflow:hidden;
+    background:linear-gradient(155deg,#0F766E,#0369A1 60%,#134E4A);box-shadow:var(--shadow-lg);}
+  .hero-visual::after{
+    content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 2px, transparent 2px 26px);
+  }
+  .hero-glass-card{
+    position:absolute;left:20px;right:20px;bottom:20px;padding:18px;border-radius:var(--radius);
+    background:rgba(255,255,255,.16);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.28);color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.25);
+  }
+  .hero-glass-card .price{font-size:22px;font-weight:800;}
+  .hero-glass-card .price span{font-size:13px;font-weight:500;opacity:.8;}
+  .hero-glass-card .meta{display:flex;gap:14px;margin-top:10px;font-size:13px;opacity:.9;flex-wrap:wrap;}
+  .hero-badge-float{
+    position:absolute;top:20px;left:20px;padding:8px 14px;border-radius:999px;
+    background:rgba(255,255,255,.9);color:var(--primary);font-weight:700;font-size:12.5px;
+    display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);
+  }
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .hero-visual{max-width:420px;margin:0 auto;}
+  }
+
+  /* ---------- Search / filter bar ---------- */
+  .search-card{
+    margin-top:-8px;padding:20px;border-radius:var(--radius-lg);
+    background:rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--border);box-shadow:var(--shadow-lg);
+  }
+  @media (prefers-color-scheme:dark){ .search-card{background:rgba(15,38,36,.7);} }
+  .search-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:12px;}
+  .field{display:flex;flex-direction:column;gap:6px;text-align:left;}
+  .field label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted-foreground);}
+  .field input,.field select{
+    padding:11px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);
+    background:var(--card);color:var(--fg);font-size:14.5px;
+  }
+  .search-card .btn{height:44px;align-self:end;}
+  @media (max-width:900px){
+    .search-row{grid-template-columns:1fr 1fr;}
+    .search-card .btn{grid-column:1/-1;}
+  }
+
+  /* ---------- Section shell ---------- */
+  section{padding:88px 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:36px;flex-wrap:wrap;}
+  .section-head h2{font-size:clamp(24px,3vw,34px);}
+  .section-head p{color:var(--muted-foreground);margin-top:8px;max-width:520px;}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:10px;display:block;}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  /* ---------- Filter chips ---------- */
+  .chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;}
+  .chip{
+    padding:9px 16px;border-radius:999px;border:1px solid var(--border);background:var(--card);
+    font-size:13.5px;font-weight:600;cursor:pointer;color:var(--muted-foreground);transition:.15s;
+  }
+  .chip:hover{border-color:var(--primary);color:var(--fg);}
+  .chip.active{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary);}
+  .results-count{font-size:13.5px;color:var(--muted-foreground);margin-bottom:18px;}
+  .results-count b{color:var(--fg);}
+
+  /* ---------- Listing grid ---------- */
+  .listing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:980px){.listing-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){.listing-grid{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+    box-shadow:var(--shadow-sm);transition:box-shadow .2s ease, transform .2s ease;display:flex;flex-direction:column;
+  }
+  .card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px);}
+
+  .listing-photo{position:relative;aspect-ratio:4/3;}
+  .listing-photo .badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;}
+  .badge{
+    padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;
+    background:rgba(255,255,255,.9);color:var(--primary);backdrop-filter:blur(6px);
+  }
+  .badge.gold{background:var(--gold);color:#3b2c00;}
+  .fav-btn{
+    position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;
+    background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:var(--shadow-sm);
+  }
+  .fav-btn svg{width:16px;height:16px;stroke:var(--fg);fill:none;stroke-width:2;transition:.15s;}
+  .fav-btn.active svg{fill:var(--destructive);stroke:var(--destructive);}
+  .listing-price-tag{
+    position:absolute;bottom:12px;left:12px;padding:7px 13px;border-radius:999px;
+    background:rgba(20,25,23,.72);color:#fff;font-weight:800;font-size:14px;backdrop-filter:blur(6px);
+  }
+  .listing-body{padding:18px;display:flex;flex-direction:column;gap:10px;flex:1;}
+  .listing-title{font-size:16.5px;font-weight:700;}
+  .listing-loc{font-size:13.5px;color:var(--muted-foreground);display:flex;align-items:center;gap:6px;}
+  .listing-specs{display:flex;gap:14px;font-size:13px;color:var(--muted-foreground);padding-top:8px;border-top:1px solid var(--border);}
+  .listing-specs strong{color:var(--fg);}
+  .listing-tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:11.5px;padding:4px 9px;border-radius:6px;background:var(--muted);color:var(--muted-foreground);font-weight:600;}
+  .listing-actions{display:flex;gap:8px;margin-top:auto;padding-top:6px;}
+  .listing-actions .btn{flex:1;}
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted-foreground);}
+
+  /* ---------- Neighborhoods / features ---------- */
+  .feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  @media (max-width:900px){.feature-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:520px){.feature-grid{grid-template-columns:1fr;}}
+  .feature-card{padding:26px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);}
+  .feature-icon{
+    width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+    background:var(--muted);color:var(--primary);
+  }
+  .feature-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;}
+  .feature-card h3{font-size:16px;margin-bottom:6px;}
+  .feature-card p{font-size:13.5px;color:var(--muted-foreground);}
+
+  .band{background:linear-gradient(155deg,var(--primary),var(--accent));color:#fff;}
+  .band .kicker,.band .results-count{color:rgba(255,255,255,.85);}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:8px;}
+  @media (max-width:820px){.steps{grid-template-columns:1fr;}}
+  .step-card{padding:24px;border-radius:var(--radius);background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.22);}
+  .step-num{font-size:13px;font-weight:800;opacity:.85;margin-bottom:10px;}
+  .step-card h3{font-size:17px;margin-bottom:8px;}
+  .step-card p{font-size:13.5px;opacity:.88;}
+
+  /* ---------- Testimonials ---------- */
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  @media (max-width:900px){.testi-grid{grid-template-columns:1fr;}}
+  .testi-card{padding:26px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);}
+  .stars{color:var(--gold);font-size:14px;margin-bottom:12px;letter-spacing:2px;}
+  .testi-card p{font-size:14.5px;color:var(--fg);}
+  .testi-person{display:flex;align-items:center;gap:10px;margin-top:18px;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--secondary),var(--accent));flex:none;}
+  .testi-person b{font-size:13.5px;display:block;}
+  .testi-person span{font-size:12px;color:var(--muted-foreground);}
+
+  /* ---------- Tour / contact ---------- */
+  .tour-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+  @media (max-width:900px){.tour-wrap{grid-template-columns:1fr;}}
+  .tour-form{padding:28px;border-radius:var(--radius-lg);background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:480px){.form-row{grid-template-columns:1fr;}}
+  .form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .form-field label{font-size:13px;font-weight:600;}
+  .form-field input,.form-field select,.form-field textarea{
+    padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);
+    color:var(--fg);font-size:14.5px;resize:vertical;
+  }
+  .form-note{font-size:12px;color:var(--muted-foreground);margin-top:10px;}
+  .form-success{
+    display:none;padding:14px 16px;border-radius:var(--radius-sm);background:var(--muted);
+    border:1px solid var(--border);font-size:13.5px;font-weight:600;color:var(--primary);margin-bottom:14px;
+  }
+  .form-success.show{display:block;}
+
+  .contact-list li{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+  .contact-list li:last-child{border-bottom:none;}
+  .contact-list .ico{
+    width:38px;height:38px;border-radius:10px;background:var(--muted);color:var(--primary);flex:none;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .contact-list .ico svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;}
+  .contact-list b{display:block;font-size:14.5px;}
+  .contact-list span{font-size:13px;color:var(--muted-foreground);}
+
+  /* ---------- FAQ ---------- */
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{
+    width:100%;text-align:left;background:none;border:none;padding:18px 0;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;font-size:15.5px;font-weight:600;color:var(--fg);
+  }
+  .faq-q .plus{font-size:20px;color:var(--primary);transition:transform .2s ease;flex:none;margin-left:16px;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .faq-item.open .faq-a{max-height:200px;}
+  .faq-a p{padding-bottom:18px;color:var(--muted-foreground);font-size:14px;max-width:640px;}
+
+  /* ---------- Final CTA ---------- */
+  .cta-block{
+    border-radius:var(--radius-lg);padding:56px;text-align:center;
+    background:linear-gradient(155deg,var(--primary),var(--accent));color:#fff;
+  }
+  .cta-block h2{font-size:clamp(24px,3.4vw,36px);max-width:560px;margin:0 auto;}
+  .cta-block p{margin-top:12px;opacity:.9;max-width:480px;margin-left:auto;margin-right:auto;}
+  .cta-block .hero-cta-row{justify-content:center;}
+  .cta-block .btn-outline{border-color:rgba(255,255,255,.5);color:#fff;}
+  .cta-block .btn-outline:hover{background:rgba(255,255,255,.15);}
+  .cta-block .btn-primary{background:#fff;color:var(--primary);}
+
+  /* ---------- Footer ---------- */
+  footer{padding:56px 0 28px;border-top:1px solid var(--border);}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;}
+  @media (max-width:760px){.footer-grid{grid-template-columns:1fr 1fr;}}
+  .footer-grid h4{font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;color:var(--muted-foreground);}
+  .footer-grid ul li{margin-bottom:9px;}
+  .footer-grid a{font-size:13.5px;color:var(--muted-foreground);}
+  .footer-grid a:hover{color:var(--primary);}
+  .footer-brand p{margin-top:12px;font-size:13.5px;color:var(--muted-foreground);max-width:280px;}
+  .footer-bottom{
+    margin-top:44px;padding-top:22px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    font-size:12.5px;color:var(--muted-foreground);
+  }
+  .socials{display:flex;gap:10px;}
+  .socials a{
+    width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .socials a:hover{background:var(--muted);}
+  .socials svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;}
+
+  /* ---------- Back to top ---------- */
+  .to-top{
+    position:fixed;right:22px;bottom:22px;width:46px;height:46px;border-radius:50%;
+    background:var(--primary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
+    z-index:40;
+  }
+  .to-top.show{opacity:1;pointer-events:auto;}
+  .to-top svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.4;}
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+  <div class="container header-row">
+    <a href="#top" class="brand">
+      <span class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
+      </span>
+      Harborline
+    </a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="#listings">Listings</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#neighborhoods">Neighborhoods</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#tour" class="btn btn-outline btn-sm">Sign in</a>
+      <a href="#tour" class="btn btn-primary btn-sm">Schedule a tour</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+      </button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="mobile-nav" id="mobileNav">
+      <ul>
+        <li><a href="#listings">Listings</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#neighborhoods">Neighborhoods</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <a href="#tour" class="btn btn-primary btn-block">Schedule a tour</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="hero" style="padding-bottom:0;">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow"><span class="dot"></span> 214 verified apartments available now</span>
+          <h1>Find an apartment that actually feels like <em>home</em>.</h1>
+          <p class="hero-sub">Browse verified listings, compare real prices with no hidden fees, and book a self-guided or agent-led tour — all without leaving Harborline.</p>
+          <div class="hero-cta-row">
+            <a href="#listings" class="btn btn-primary">Browse listings</a>
+            <a href="#tour" class="btn btn-outline">Schedule a tour</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><b>214</b><span>Active listings</span></div>
+            <div class="hero-stat"><b>32</b><span>Neighborhoods</span></div>
+            <div class="hero-stat"><b>4.9/5</b><span>Renter rating</span></div>
+            <div class="hero-stat"><b>0%</b><span>Broker fee</span></div>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-badge-float">✓ Verified listing</div>
+          <div class="hero-glass-card">
+            <div class="price">$2,150<span> /mo</span></div>
+            <div class="meta"><span>2 bed</span><span>2 bath</span><span>Pier District</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-card reveal" style="margin-top:44px;">
+        <form class="search-row" id="searchForm">
+          <div class="field">
+            <label for="q">Location or building</label>
+            <input type="text" id="q" placeholder="Neighborhood, city, or ZIP">
+          </div>
+          <div class="field">
+            <label for="beds">Bedrooms</label>
+            <select id="beds">
+              <option value="any">Any</option>
+              <option value="0">Studio</option>
+              <option value="1">1 bed</option>
+              <option value="2">2 beds</option>
+              <option value="3">3+ beds</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="price">Max price</label>
+            <select id="price">
+              <option value="any">Any</option>
+              <option value="1600">Under $1,600</option>
+              <option value="2000">Under $2,000</option>
+              <option value="2600">Under $2,600</option>
+              <option value="3500">Under $3,500</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="movein">Move-in</label>
+            <input type="date" id="movein">
+          </div>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Listings -->
+  <section id="listings">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Available now</span>
+          <h2>Apartments picked for you</h2>
+          <p>Every home is verified in person by our team — real photos, real pricing, no surprise fees.</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <select id="sortSelect" class="btn-outline" style="border-radius:999px;padding:11px 18px;font-size:13.5px;font-weight:600;background:var(--card);border:1px solid var(--border);">
+            <option value="rec">Recommended</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="beds-desc">Most bedrooms</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="chip-row" id="chipRow">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="pet">Pet friendly</button>
+        <button class="chip" data-filter="parking">Parking</button>
+        <button class="chip" data-filter="furnished">Furnished</button>
+        <button class="chip" data-filter="gym">Gym</button>
+        <button class="chip" data-filter="pool">Pool</button>
+        <button class="chip" data-filter="laundry">In-unit laundry</button>
+      </div>
+
+      <p class="results-count"><b id="resultsCount">8</b> apartments match your search</p>
+
+      <div class="listing-grid" id="listingGrid"></div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works" class="band">
+    <div class="container">
+      <span class="kicker">How it works</span>
+      <h2 style="max-width:520px;">Renting your next place in three simple steps</h2>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>Search &amp; filter</h3>
+          <p>Narrow down verified listings by price, bedrooms, move-in date and the amenities you actually care about.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Tour on your schedule</h3>
+          <p>Book a self-guided or agent-led tour in a couple of taps — most tours are available within 48 hours.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>Apply &amp; move in</h3>
+          <p>Submit one secure application to as many units as you like, sign digitally, and get your keys.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Neighborhoods / features -->
+  <section id="neighborhoods">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Why Harborline</span>
+          <h2>Built to make renting less stressful</h2>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <h3>Verified listings only</h3>
+          <p>Every unit is inspected and photographed by our team before it goes live — no bait-and-switch.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7"/></svg></div>
+          <h3>Zero broker fees</h3>
+          <p>The price you see is the price you pay. Application and tour scheduling are always free.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <h3>Tour within 48 hours</h3>
+          <p>Self-guided lockbox tours or a live agent walkthrough — whichever fits your schedule.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></div>
+          <h3>One application, many units</h3>
+          <p>Apply once and reuse your profile across every apartment you're interested in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="reviews" style="background:var(--muted);">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Renter stories</span>
+          <h2>Loved by people who just wanted an easier move</h2>
+        </div>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card reveal">
+          <div class="stars">★★★★★</div>
+          <p>"I toured four apartments in one afternoon and signed the same week. No spammy calls, no fake listings."</p>
+          <div class="testi-person"><div class="avatar"></div><div><b>Maya Chen</b><span>Moved to Pier District</span></div></div>
+        </div>
+        <div class="testi-card reveal">
+          <div class="stars">★★★★★</div>
+          <p>"The self-guided tour option was perfect for my schedule. Booked at 9pm, toured the next morning."</p>
+          <div class="testi-person"><div class="avatar"></div><div><b>Daniel Osei</b><span>Moved to Riverside Row</span></div></div>
+        </div>
+        <div class="testi-card reveal">
+          <div class="stars">★★★★★</div>
+          <p>"Every photo matched the actual unit. First rental site where the listing wasn't misleading."</p>
+          <div class="testi-person"><div class="avatar"></div><div><b>Priya Nathan</b><span>Moved to Old Mill Yard</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tour / contact -->
+  <section id="tour">
+    <div class="container">
+      <div class="tour-wrap">
+        <div>
+          <span class="kicker">Get in touch</span>
+          <h2 style="margin-bottom:14px;">Schedule a tour or ask us anything</h2>
+          <p style="color:var(--muted-foreground);max-width:420px;margin-bottom:28px;">Tell us what you're looking for and a local leasing agent will follow up with available times, usually within a few hours.</p>
+          <ul class="contact-list">
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.4 2.1L8 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg></span>
+              <div><b>(555) 019-4482</b><span>Mon–Sat, 8am–7pm</span></div>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg></span>
+              <div><b>leasing@harborline.example</b><span>We reply within a few hours</span></div>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+              <div><b>128 Harbor Ave, Suite 4</b><span>Leasing office &amp; walk-ins welcome</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <form class="tour-form" id="tourForm">
+          <div class="form-success" id="formSuccess">Thanks! A leasing agent will reach out shortly to confirm your tour time.</div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="fname">First name</label>
+              <input type="text" id="fname" required>
+            </div>
+            <div class="form-field">
+              <label for="lname">Last name</label>
+              <input type="text" id="lname" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="femail">Email</label>
+              <input type="email" id="femail" required>
+            </div>
+            <div class="form-field">
+              <label for="fphone">Phone</label>
+              <input type="tel" id="fphone" placeholder="(555) 000-0000">
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="funit">Which apartment are you interested in?</label>
+            <select id="funit">
+              <option>Not sure yet — recommend a few</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="fmsg">Anything else we should know?</label>
+            <textarea id="fmsg" rows="3" placeholder="Preferred tour time, move-in date, questions…"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Request a tour</button>
+          <p class="form-note">By submitting, you agree to be contacted about this inquiry. No spam, ever.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="background:var(--muted);">
+    <div class="container" style="max-width:760px;">
+      <div class="section-head" style="margin-bottom:8px;">
+        <div>
+          <span class="kicker">Questions</span>
+          <h2>Frequently asked questions</h2>
+        </div>
+      </div>
+      <div id="faqList">
+        <div class="faq-item open">
+          <button class="faq-q">Is there really no broker fee? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Correct — Harborline doesn't charge renters a broker or platform fee. You only pay what's listed: rent, deposit, and any building-specific fees disclosed up front.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">How do self-guided tours work? <span class="plus">+</span></button>
+          <div class="faq-a"><p>After booking, you'll get a one-time smart-lock code valid for your scheduled 30-minute window. Just show up and let yourself in — no agent required.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What do I need to apply? <span class="plus">+</span></button>
+          <div class="faq-a"><p>A government ID, proof of income (pay stubs or offer letter), and a soft credit check. Most applications are reviewed within 24 hours.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Can I reuse one application for multiple units? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Yes — your Harborline profile carries over, so you can apply to additional units without re-entering your information.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section>
+    <div class="container">
+      <div class="cta-block reveal">
+        <h2>Your next apartment is a search away.</h2>
+        <p>Join thousands of renters who found a place they love without the usual hassle.</p>
+        <div class="hero-cta-row">
+          <a href="#listings" class="btn btn-primary">Browse listings</a>
+          <a href="#tour" class="btn btn-outline">Talk to an agent</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#top" class="brand">
+          <span class="brand-mark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
+          </span>
+          Harborline
+        </a>
+        <p>A friendlier way to find, tour and rent an apartment — verified listings, transparent pricing, zero broker fees.</p>
+        <div class="socials" style="margin-top:16px;">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4 4 20"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a4 4 0 0 0-4 4v3H8v4h3v9h4v-9h3l1-4h-4V6a1 1 0 0 1 1-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#listings">All listings</a></li>
+          <li><a href="#neighborhoods">Neighborhoods</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#reviews">Reviews</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Renters</h4>
+        <ul>
+          <li><a href="#tour">Schedule a tour</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#">Application status</a></li>
+          <li><a href="#">Renter guide</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">List a property</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#tour">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Harborline Rentals. All rights reserved.</span>
+      <span>Demo site — for portfolio/preview purposes only.</span>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Data ----------
+  var listings = [
+    {id:1, title:"The Pier District Loft", loc:"Pier District", price:2150, beds:2, baths:2, sqft:980, tags:["pet","gym","laundry"], featured:true, grad:"linear-gradient(150deg,#0F766E,#0369A1)"},
+    {id:2, title:"Old Mill Yard Studio", loc:"Old Mill Yard", price:1350, beds:0, baths:1, sqft:520, tags:["laundry"], featured:false, grad:"linear-gradient(150deg,#134E4A,#14B8A6)"},
+    {id:3, title:"Riverside Row Townhome", loc:"Riverside Row", price:2890, beds:3, baths:2, sqft:1420, tags:["pet","parking","gym"], featured:true, grad:"linear-gradient(150deg,#0369A1,#0F766E)"},
+    {id:4, title:"Cedar Heights One-Bed", loc:"Cedar Heights", price:1620, beds:1, baths:1, sqft:640, tags:["parking","laundry"], featured:false, grad:"linear-gradient(150deg,#14B8A6,#134E4A)"},
+    {id:5, title:"Harbor View Two-Bed", loc:"North Harbor", price:2400, beds:2, baths:1, sqft:860, tags:["pool","gym","pet"], featured:false, grad:"linear-gradient(150deg,#0F766E,#134E4A)"},
+    {id:6, title:"Furnished Downtown Suite", loc:"Downtown Core", price:2950, beds:1, baths:1, sqft:700, tags:["furnished","gym","pool"], featured:true, grad:"linear-gradient(150deg,#0369A1,#134E4A)"},
+    {id:7, title:"Maple Court Family Unit", loc:"Maple Court", price:3150, beds:3, baths:2.5, sqft:1580, tags:["pet","parking","laundry"], featured:false, grad:"linear-gradient(150deg,#134E4A,#0369A1)"},
+    {id:8, title:"Lakeside Garden Studio", loc:"Lakeside", price:1480, beds:0, baths:1, sqft:480, tags:["pet","laundry"], featured:false, grad:"linear-gradient(150deg,#14B8A6,#0369A1)"}
+  ];
+
+  var bedLabel = function(n){ return n === 0 ? "Studio" : n + " bed"; };
+  var tagLabel = { pet:"Pet friendly", parking:"Parking", furnished:"Furnished", gym:"Gym", pool:"Pool", laundry:"In-unit laundry" };
+
+  var state = { q:"", beds:"any", price:"any", chip:"all", sort:"rec", favorites:{} };
+
+  var grid = document.getElementById("listingGrid");
+  var countEl = document.getElementById("resultsCount");
+
+  function cardTemplate(item){
+    var badges = '<span class="badge">' + bedLabel(item.beds) + '</span>' + (item.featured ? '<span class="badge gold">Featured</span>' : '');
+    var tags = item.tags.slice(0,3).map(function(t){ return '<span class="tag">' + tagLabel[t] + '</span>'; }).join("");
+    var favActive = state.favorites[item.id] ? " active" : "";
+    return (
+      '<article class="card" data-id="' + item.id + '">' +
+        '<div class="listing-photo" style="background:' + item.grad + ';">' +
+          '<div class="badges">' + badges + '</div>' +
+          '<button class="fav-btn' + favActive + '" data-fav="' + item.id + '" aria-label="Save listing">' +
+            '<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>' +
+          '</button>' +
+          '<div class="listing-price-tag">$' + item.price.toLocaleString() + '/mo</div>' +
+        '</div>' +
+        '<div class="listing-body">' +
+          '<h3 class="listing-title">' + item.title + '</h3>' +
+          '<div class="listing-loc">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+            item.loc +
+          '</div>' +
+          '<div class="listing-specs"><span><strong>' + bedLabel(item.beds) + '</strong></span><span><strong>' + item.baths + '</strong> bath</span><span><strong>' + item.sqft.toLocaleString() + '</strong> sqft</span></div>' +
+          '<div class="listing-tags">' + tags + '</div>' +
+          '<div class="listing-actions">' +
+            '<a href="#tour" class="btn btn-outline btn-sm">Details</a>' +
+            '<a href="#tour" class="btn btn-primary btn-sm">Schedule tour</a>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function applyFilters(){
+    var q = state.q.trim().toLowerCase();
+    var maxPrice = state.price === "any" ? Infinity : parseInt(state.price, 10);
+    var bedsFilter = state.beds;
+
+    var result = listings.filter(function(item){
+      if (q && item.title.toLowerCase().indexOf(q) === -1 && item.loc.toLowerCase().indexOf(q) === -1) return false;
+      if (bedsFilter !== "any") {
+        if (bedsFilter === "3") { if (item.beds < 3) return false; }
+        else if (parseInt(bedsFilter, 10) !== item.beds) return false;
+      }
+      if (item.price > maxPrice) return false;
+      if (state.chip !== "all" && item.tags.indexOf(state.chip) === -1) return false;
+      return true;
+    });
+
+    result.sort(function(a,b){
+      if (state.sort === "price-asc") return a.price - b.price;
+      if (state.sort === "price-desc") return b.price - a.price;
+      if (state.sort === "beds-desc") return b.beds - a.beds;
+      return (b.featured === a.featured) ? 0 : (b.featured ? 1 : -1); // featured first
+    });
+
+    render(result);
+  }
+
+  function render(result){
+    countEl.textContent = result.length;
+    if (result.length === 0){
+      grid.innerHTML = '<div class="empty-state">No apartments match those filters yet. Try widening your search.</div>';
+      return;
+    }
+    grid.innerHTML = result.map(cardTemplate).join("");
+  }
+
+  // Search form
+  document.getElementById("searchForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    state.q = document.getElementById("q").value;
+    state.beds = document.getElementById("beds").value;
+    state.price = document.getElementById("price").value;
+    applyFilters();
+    document.getElementById("listings").scrollIntoView({behavior:"smooth"});
+  });
+
+  // Chips
+  document.getElementById("chipRow").addEventListener("click", function(e){
+    var chip = e.target.closest(".chip");
+    if (!chip) return;
+    document.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("active"); });
+    chip.classList.add("active");
+    state.chip = chip.getAttribute("data-filter");
+    applyFilters();
+  });
+
+  // Sort
+  document.getElementById("sortSelect").addEventListener("change", function(e){
+    state.sort = e.target.value;
+    applyFilters();
+  });
+
+  // Favorites (event delegation) + details/tour buttons scroll normally via anchors
+  grid.addEventListener("click", function(e){
+    var favBtn = e.target.closest("[data-fav]");
+    if (!favBtn) return;
+    var id = favBtn.getAttribute("data-fav");
+    state.favorites[id] = !state.favorites[id];
+    favBtn.classList.toggle("active");
+  });
+
+  applyFilters();
+
+  // ---------- Header scroll state ----------
+  var header = document.getElementById("siteHeader");
+  var toTop = document.getElementById("toTop");
+  window.addEventListener("scroll", function(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    header.classList.toggle("scrolled", y > 12);
+    toTop.classList.toggle("show", y > 500);
+  }, { passive:true });
+
+  toTop.addEventListener("click", function(){
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+
+  // ---------- Mobile nav ----------
+  var navToggle = document.getElementById("navToggle");
+  var mobileNav = document.getElementById("mobileNav");
+  navToggle.addEventListener("click", function(){
+    var open = mobileNav.classList.toggle("open");
+    navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  mobileNav.addEventListener("click", function(e){
+    if (e.target.tagName === "A") {
+      mobileNav.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  // ---------- FAQ accordion ----------
+  document.querySelectorAll(".faq-q").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var item = btn.closest(".faq-item");
+      var wasOpen = item.classList.contains("open");
+      document.querySelectorAll(".faq-item").forEach(function(i){ i.classList.remove("open"); });
+      if (!wasOpen) item.classList.add("open");
+    });
+  });
+
+  // ---------- Tour form ----------
+  var tourForm = document.getElementById("tourForm");
+  var formSuccess = document.getElementById("formSuccess");
+  tourForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    formSuccess.classList.add("show");
+    tourForm.reset();
+    formSuccess.scrollIntoView({behavior:"smooth", block:"nearest"});
+  });
+
+  // ---------- Reveal on scroll ----------
+  var revealEls = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting){
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.15 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add("in"); });
+  }
+})();
+</script>
+</body>
+</html>
